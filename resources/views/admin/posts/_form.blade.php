@@ -53,3 +53,16 @@
         </span>
     </div>
 </div>
+
+
+<div class="form-group{{ $errors->has('user_id') ? ' has-error' : '' }}">
+    {!! Form::label('user_id', 'Autor', ['class' => 'col-md-2 control-label']) !!}
+
+    <div class="col-md-8">
+        {!! Form::select('user_id', $user_id,null, ['class' => 'form-control', 'placeholder' => 'Select an author', 'required']) !!}
+
+        <span class="help-block">
+            <strong>{{ $errors->first('user_id') }}</strong>
+        </span>
+    </div>
+</div>

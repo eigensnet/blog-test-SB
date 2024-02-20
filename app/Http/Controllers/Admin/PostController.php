@@ -7,12 +7,15 @@ use App\Http\Requests\PostRequest;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
+use App\User;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewPostMail;
 
 class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::with(['user', 'category', 'tags', 'comments'])->paginate(10);
+        $posts = Post::with(['user', 'category', 'tags','comments'])->paginate(10);
 
         return view('admin.posts.index', compact('posts'));
     }
@@ -21,17 +24,19 @@ class PostController extends Controller
     {
         $categories = Category::pluck('name', 'id')->all();
         $tags = Tag::pluck('name', 'name')->all();
+        $user_id = User::pluck('name', 'id')->all();
 
-        return view('admin.posts.create', compact('categories', 'tags'));
+        return view('admin.posts.create', compact('categories', 'tags', 'user_id'));
     }
 
     public function store(PostRequest $request)
     {
         $post = Post::create(
             [
-                'title'       => $request->title,
-                'body'        => $request->body,
+                'title' => $request->title,
+                'body' => $request->body,
                 'category_id' => $request->category_id,
+                'user_id' => $request->user_id,
             ]
         );
 
@@ -42,10 +47,14 @@ class PostController extends Controller
         );
 
         $post->tags()->attach($tagsId);
+
+        Mail::to(env('ADMIN_EMAIL'))->send(new NewPostMail($post));
+        
         flash()->overlay('Post created successfully.');
 
         return redirect('/admin/posts');
     }
+    
 
     public function show(Post $post)
     {
@@ -64,17 +73,19 @@ class PostController extends Controller
 
         $categories = Category::pluck('name', 'id')->all();
         $tags = Tag::pluck('name', 'name')->all();
+        $user_id = User::pluck('name', 'id');
 
-        return view('admin.posts.edit', compact('post', 'categories', 'tags'));
+        return view('admin.posts.edit', compact('post', 'categories', 'tags', 'user_id'));
     }
 
     public function update(PostRequest $request, Post $post)
     {
         $post->update(
             [
-                'title'       => $request->title,
-                'body'        => $request->body,
+                'title' => $request->title,
+                'body' => $request->body,
                 'category_id' => $request->category_id,
+                'user_id' => $request->user_id,
             ]
         );
 

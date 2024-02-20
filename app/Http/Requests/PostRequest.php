@@ -28,6 +28,7 @@ class PostRequest extends FormRequest
             'body'        => 'required',
             'category_id' => 'required',
             'tags'        => 'required',
+            'user_id'     => 'required',
         ];
     }
 }
