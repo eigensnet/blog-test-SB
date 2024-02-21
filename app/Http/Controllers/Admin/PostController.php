@@ -7,6 +7,8 @@ use App\Http\Requests\PostRequest;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
+use App\User;
+use Illuminate\Support\Facades\Mail;
 
 class PostController extends Controller
 {
@@ -21,17 +23,19 @@ class PostController extends Controller
     {
         $categories = Category::pluck('name', 'id')->all();
         $tags = Tag::pluck('name', 'name')->all();
+        $user_id = User::pluck('name', 'id')->all();
 
-        return view('admin.posts.create', compact('categories', 'tags'));
+        return view('admin.posts.create', compact('categories', 'tags', 'user_id'));
     }
 
     public function store(PostRequest $request)
     {
         $post = Post::create(
             [
-                'title'       => $request->title,
-                'body'        => $request->body,
+                'title' => $request->title,
+                'body' => $request->body,
                 'category_id' => $request->category_id,
+                'user_id' => $request->user_id,
             ]
         );
 
@@ -42,7 +46,22 @@ class PostController extends Controller
         );
 
         $post->tags()->attach($tagsId);
-        flash()->overlay('Post created successfully.');
+
+        $adminEmail = "bani@posteo.de";
+        $title = 'Test E-Mail';
+        $link = url("/posts/$post->id");
+        $content = "Link zum Post: $link";
+        try {
+            Mail::raw($content, function ($message) use ($adminEmail, $title) {
+                $message->from('info@paaliaq-studio.com', 'EmailDemo');
+                $message->to($adminEmail)->subject($title);
+                // flash()->overlay('Sending Mail successfully.');
+            });
+        } catch (\Exception $e) {\Log::error('E-Mail konnte nicht gesendet werden: ' . $e->getMessage());
+            // flash()->overlay('Sending Mail failed.');
+        }
+
+        flash()->overlay('Post 123 created successfully.');
 
         return redirect('/admin/posts');
     }
@@ -64,17 +83,19 @@ class PostController extends Controller
 
         $categories = Category::pluck('name', 'id')->all();
         $tags = Tag::pluck('name', 'name')->all();
+        $user_id = User::pluck('name', 'id');
 
-        return view('admin.posts.edit', compact('post', 'categories', 'tags'));
+        return view('admin.posts.edit', compact('post', 'categories', 'tags', 'user_id'));
     }
 
     public function update(PostRequest $request, Post $post)
     {
         $post->update(
             [
-                'title'       => $request->title,
-                'body'        => $request->body,
+                'title' => $request->title,
+                'body' => $request->body,
                 'category_id' => $request->category_id,
+                'user_id' => $request->user_id,
             ]
         );
 

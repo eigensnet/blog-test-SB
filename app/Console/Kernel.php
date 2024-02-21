@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         //
+        \App\Console\Commands\CreateMonthlySummary::class,
     ];
 
     /**
@@ -26,6 +27,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+        $schedule->command('post:create-monthly-summary')->monthlyOn(1, '00:00');
     }
 
     /**
@@ -35,6 +37,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
+        $this   ->load(__DIR__."/Commands");
         require base_path('routes/console.php');
     }
 }
