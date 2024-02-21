@@ -9,13 +9,12 @@ use App\Models\Post;
 use App\Models\Tag;
 use App\User;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\NewPostMail;
 
 class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::with(['user', 'category', 'tags','comments'])->paginate(10);
+        $posts = Post::with(['user', 'category', 'tags', 'comments'])->paginate(10);
 
         return view('admin.posts.index', compact('posts'));
     }
@@ -48,13 +47,24 @@ class PostController extends Controller
 
         $post->tags()->attach($tagsId);
 
-        Mail::to(env('ADMIN_EMAIL'))->send(new NewPostMail($post));
-        
-        flash()->overlay('Post created successfully.');
+        $adminEmail = "bani@posteo.de";
+        $title = 'Test E-Mail';
+        $link = url("/posts/$post->id");
+        $content = "Link zum Post: $link";
+        try {
+            Mail::raw($content, function ($message) use ($adminEmail, $title) {
+                $message->from('info@paaliaq-studio.com', 'EmailDemo');
+                $message->to($adminEmail)->subject($title);
+                // flash()->overlay('Sending Mail successfully.');
+            });
+        } catch (\Exception $e) {\Log::error('E-Mail konnte nicht gesendet werden: ' . $e->getMessage());
+            // flash()->overlay('Sending Mail failed.');
+        }
+
+        flash()->overlay('Post 123 created successfully.');
 
         return redirect('/admin/posts');
     }
-    
 
     public function show(Post $post)
     {
