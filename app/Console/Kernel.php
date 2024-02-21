@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
-        // $schedule->command('post:create-monthly-summary')->monthlyOn(1, '00:00');
+        $schedule->command('post:create-monthly-summary')->monthlyOn(1, '00:00');
     }
 
     /**

@@ -53,5 +53,16 @@ class DummyDataSeeder extends Seeder
         }
 
         DB::table('post_tag')->insert($data);
+
+        $summaryCategory = Category::firstOrCreate(['name' => 'summary_report']);
+        Post::create([
+            'title' => 'Monatliche Zusammenfassung',
+            'body' => 'Erster Report',
+            'user_id' => 1,
+            'category_id' => $summaryCategory->id,
+            'is_published' => false,
+            'created_at' => Carbon::now()->toDateTimeString(),
+            'updated_at' => Carbon::now()->toDateTimeString(),
+        ]);
     }
 }

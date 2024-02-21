@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Post;
 use Illuminate\Console\Command;
+use App\Models\Category;
 
 class CreateMonthlySummary extends Command
 {
@@ -17,19 +18,23 @@ class CreateMonthlySummary extends Command
 
     public function handle()
     {
+        // \Log::info('started posting.');
         $adminId = 1;
-        $title = 'summary ' . now()->format('m.Y');
+        $title = 'Zusammenfassung ' . now()->format('m.Y');
         $body = 'content:';
-        $categoryId = 1;
+        $searchedId = Category::firstOrCreate(['name' => 'summary_report']);
+        $categoryId = $searchedId->id;
 
         Post::create([
             'title' => $title,
             'body' => $body,
             'user_id' => $adminId,
-            'category_id'=> $categoryId
+            'category_id'=> $categoryId,
+            'is_published' => 0,
         ]);
 
         $this->info('Monthly summary post created successfully.');
+        // \Log::info('ending posting.');
     }
 
 }
